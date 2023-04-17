@@ -1,5 +1,5 @@
 use rand::prelude::SliceRandom;
-use std::io::Write;
+use std::{io::Write};
 
 /**
  * Generate Random Number Between 0 and 9
@@ -15,15 +15,34 @@ fn get_random_number() -> [u8; 4] {
  * Parse input
  */
 fn parse_input(input: &String) -> Vec<u8> {
-    /*
+    //check input has ' ' char
+    let check = input.trim().find(' ');
+
+    let nums = match check
+    {
+        None => input_as_numeric(input),
+        _ => input_as_string(input)
+    };
+
+    nums
+}
+
+fn input_as_string(input: &String) -> Vec<u8> {
     let nums: Vec<u8> = input.split_whitespace()
     .map(|s| s.parse().expect("Invalid Input"))
     .collect();
-    */
+
+    nums
+}
+
+fn input_as_numeric(input: &String) -> Vec<u8>{
     let mut nums: Vec<u8> = vec!();
 
     for i in input.trim().chars()
     {
+        if !i.is_ascii_digit() { // char가 숫자가 아닌 경우
+            panic!("Invalid Input");
+        }
         let c = i as u8;
         nums.push(c - 48);
     }
