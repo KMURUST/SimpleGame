@@ -137,6 +137,8 @@ fn main() {
             println!("Strike: {strike} Ball: {ball}");
             if strike == 4 {
                 println!("Win!");
+                // 맞춘경우 몇번만에 맞췄는지
+                println!("You got it right in {} attempts!", game.try_count);
                 break;
             }
         }
