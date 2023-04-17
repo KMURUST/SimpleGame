@@ -25,32 +25,34 @@ fn parse_input(input: &String) -> Result<Vec<u8>, String> {
         _ => input_as_string(input)?
     };
 
+    //length check
+    if nums.len() != 4 {
+        return Err("You must enter 4 numbers".to_string());
+    }
+    // out-of-range check
+    for num in &nums {
+        if *num >= 10 {
+            return Err("Number shoud be lower than 10".to_string());
+        }
+    }
+
     Ok(nums)
 }
 
 fn input_as_string(input: &String) -> Result<Vec<u8>, String> {
-    let nums: Vec<Result<u8, String>> = input.split_whitespace()
-    .map(|s| s.parse().map_err(|error: ParseIntError| error.to_string()))
+    let nums: Vec<Result<u8, ParseIntError>> = input.split_whitespace()
+    .map(|s| s.parse()) // 원소 하나라도 Err이면 input_as_string이 Err()반환 
     .collect();
-    
-    let mut e_msg = None;
-    
-    let parsed_nums: Vec<u8> = nums.into_iter()
-    .map(|num| {
-        match num {
-            Ok(n) => n,
-            Err(e) => {
-                e_msg.insert(e);
-                0
-            }
-        }
-    })
-    .collect();
-    
-    if e_msg != None{
-        return Err(e_msg.unwrap());
-    }
 
+    let mut parsed_nums: Vec<u8> = vec![];
+
+    for num in nums {
+        if num.is_err() {
+            return Err(num.unwrap_err().to_string());
+        }
+        parsed_nums.push(num.unwrap());
+    }
+    
     Ok(parsed_nums)
 }
 
@@ -76,10 +78,6 @@ struct Game {
 
 impl Game {
     fn guess_number(&mut self, guess_number: Vec<u8>) -> (u8, u8) {
-        // Check Strike or Ball
-        if guess_number.len() != 4 {
-            return (255, 255);
-        }
         let mut strike: u8 = 0;
         let mut ball: u8 = 0;
         for i in 0..4 {
@@ -121,6 +119,10 @@ fn main() {
                 print!("Input your guess: ");
                 std::io::stdout().flush().expect("Flush Failed.");
                 std::io::stdin().read_line(&mut input).expect("STDIN read_line Failed.");
+                // "exit"입력받으면 'main_loop 탈출
+                if input.contains("Exit") || input.contains("exit") {
+                    break 'main_loop;
+                }
                 number = parse_input(&input);
 
                 if number.is_ok() {
@@ -131,9 +133,6 @@ fn main() {
 
             let guessed_number = number.unwrap();
             
-            if guessed_number[0] > 10 {
-                break 'main_loop;
-            }
             let (strike, ball) = game.guess_number(guessed_number);
             println!("Strike: {strike} Ball: {ball}");
             if strike == 4 {
