@@ -1,5 +1,6 @@
 use rand::prelude::SliceRandom;
 use std::{io::Write};
+use std::num::ParseIntError;
 
 /**
  * Generate Random Number Between 0 and 9
@@ -14,40 +15,58 @@ fn get_random_number() -> [u8; 4] {
 /**
  * Parse input
  */
-fn parse_input(input: &String) -> Vec<u8> {
+fn parse_input(input: &String) -> Result<Vec<u8>, String> {
     //check input has ' ' char
     let check = input.trim().find(' ');
 
     let nums = match check
     {
-        None => input_as_numeric(input),
-        _ => input_as_string(input)
+        None => input_as_numeric(input)?,
+        _ => input_as_string(input)?
     };
 
-    nums
+    Ok(nums)
 }
 
-fn input_as_string(input: &String) -> Vec<u8> {
-    let nums: Vec<u8> = input.split_whitespace()
-    .map(|s| s.parse().expect("Invalid Input"))
+fn input_as_string(input: &String) -> Result<Vec<u8>, String> {
+    let nums: Vec<Result<u8, String>> = input.split_whitespace()
+    .map(|s| s.parse().map_err(|error: ParseIntError| error.to_string()))
     .collect();
+    
+    let mut e_msg = None;
+    
+    let parsed_nums: Vec<u8> = nums.into_iter()
+    .map(|num| {
+        match num {
+            Ok(n) => n,
+            Err(e) => {
+                e_msg.insert(e);
+                0
+            }
+        }
+    })
+    .collect();
+    
+    if e_msg != None{
+        return Err(e_msg.unwrap());
+    }
 
-    nums
+    Ok(parsed_nums)
 }
 
-fn input_as_numeric(input: &String) -> Vec<u8>{
+fn input_as_numeric(input: &String) -> Result<Vec<u8>, String>{
     let mut nums: Vec<u8> = vec!();
 
     for i in input.trim().chars()
     {
         if !i.is_ascii_digit() { // char가 숫자가 아닌 경우
-            panic!("Invalid Input");
+            return Err("Invalid Input".to_string());
         }
         let c = i as u8;
         nums.push(c - 48);
     }
     
-    nums
+    Ok(nums)
 }
 
 struct Game {
@@ -94,11 +113,23 @@ fn main() {
         };
         println!("{:?}", game.target_number);
         loop {
-            let mut input = String::new();
-            print!("Input your guess: ");
-            std::io::stdout().flush().expect("Flush Failed.");
-            std::io::stdin().read_line(&mut input).expect("STDIN read_line Failed.");
-            let guessed_number = parse_input(&input);
+            
+            let mut number :Result<Vec<u8>, _>;
+            loop {
+                let mut input = String::new();
+                print!("Input your guess: ");
+                std::io::stdout().flush().expect("Flush Failed.");
+                std::io::stdin().read_line(&mut input).expect("STDIN read_line Failed.");
+                number = parse_input(&input);
+
+                if number.is_ok() {
+                    break;
+                }
+                println!("{:?}", number);
+            }
+
+            let guessed_number = number.unwrap();
+            
             if guessed_number[0] > 10 {
                 break 'main_loop;
             }
