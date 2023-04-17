@@ -144,3 +144,71 @@ fn main() {
     }
     println!("Bye.");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_input_test_with_space() {
+        let input_string = String::from("1 2 3 4");
+        let numbers: Result<Vec<u8>, _> = parse_input(&input_string);
+        println!("Input:{input_string}");
+        println!("Output:{numbers:?}");
+        assert!(numbers.is_ok(), "Parse Input Failed");
+    }
+
+    #[test]
+    fn parse_input_test_without_space() {
+        let input_string = String::from("1234");
+        let numbers: Result<Vec<u8>, _> = parse_input(&input_string);
+        println!("Input:{input_string}");
+        println!("Output:{numbers:?}");
+        assert!(numbers.is_ok(), "Parse Input Failed");
+    }
+
+    #[test]
+    fn parse_input_test_invalid_without_space() {
+        let input_string = String::from("1asdf1");
+        let numbers: Result<Vec<u8>, _> = parse_input(&input_string);
+        println!("Input:{input_string}");
+        println!("Output:{numbers:?}");
+        assert!(numbers.is_err(), "Parse Input should return Err");
+    }
+
+    #[test]
+    fn parse_input_test_invalid_with_space() {
+        let input_string = String::from("1as df2 1a1 0");
+        let numbers: Result<Vec<u8>, _> = parse_input(&input_string);
+        println!("Input:{input_string}");
+        println!("Output:{numbers:?}");
+        assert!(numbers.is_err(), "Parse Input should return Err");
+    }
+
+    #[test]
+    fn parse_input_test_empty() {
+        let input_string = String::from("");
+        let numbers: Result<Vec<u8>, _> = parse_input(&input_string);
+        println!("Input:{input_string}");
+        println!("Output:{numbers:?}");
+        assert!(numbers.is_err(), "Parse Input shoud return Err");
+    }
+
+    #[test]
+    fn parse_input_test_out_of_range() {
+        let input_string = String::from("11 5 2 4");
+        let numbers: Result<Vec<u8>, _> = parse_input(&input_string);
+        println!("Input:{input_string}");
+        println!("Output:{numbers:?}");
+        assert!(numbers.is_err(), "Parse Input shoud return Err");
+    }
+
+    #[test]
+    fn parse_input_test_single_number() {
+        let input_string = String::from("5");
+        let numbers: Result<Vec<u8>, _> = parse_input(&input_string);
+        println!("Input:{input_string}");
+        println!("Output:{numbers:?}");
+        assert!(numbers.is_err(), "Parse Input shoud return Err");
+    }
+}
