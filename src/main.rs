@@ -15,9 +15,19 @@ fn get_random_number() -> [u8; 4] {
  * Parse input
  */
 fn parse_input(input: &String) -> Vec<u8> {
+    /*
     let nums: Vec<u8> = input.split_whitespace()
     .map(|s| s.parse().expect("Invalid Input"))
     .collect();
+    */
+    let mut nums: Vec<u8> = vec!();
+
+    for i in input.trim().chars()
+    {
+        let c = i as u8;
+        nums.push(c - 48);
+    }
+    
     nums
 }
 
