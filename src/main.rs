@@ -114,6 +114,7 @@ fn main() {
         println!("{:?}", game.target_number);
         loop {
             
+            //input loop
             let mut number :Result<Vec<u8>, _>;
             loop {
                 let mut input = String::new();
